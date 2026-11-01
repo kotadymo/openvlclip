@@ -7,13 +7,13 @@ An independent Python library providing an OpenCLIP-inspired inference API for E
 >
 > `openvlclip` is an independent, unofficial project. It is not affiliated with, endorsed by, sponsored by, or officially maintained by Google, Google DeepMind, Meta, or the OpenCLIP project.
 >
-> OpenVLCLIP v0.7.1 was formally published to PyPI and as a GitHub Release on 2026-10-23. That distribution has five registered checkpoints. The source registry also includes three additional SigLIP 2 variants and optional PE-Core T/S. **Qwen 8B (Qwen3-VL-Embedding-8B) is not registered or supported.** Model weights are downloaded separately and are not bundled. This library is not a drop-in replacement for OpenCLIP.
+> OpenVLCLIP v0.8.0 was published to [PyPI](https://pypi.org/project/openvlclip/0.8.0/) and as a [GitHub Release](https://github.com/kotadymo/openvlclip/releases/tag/v0.8.0) on 2026-10-23; it contains ten registered checkpoints. The earlier v0.7.1 distribution contained five. **Qwen3-VL-Embedding-8B is not registered or supported.** Model weights are downloaded separately and are not bundled. This library is not a drop-in replacement for OpenCLIP.
 
 ## Features
 
 - OpenCLIP-style `create_model`, `create_model_and_transforms`, and `get_tokenizer` entry points.
 - Factory discovery with `list_models()`, `list_pretrained()`, and `create_model_from_pretrained()`.
-- A Model Registry, shared Backend interface, and per-model Capabilities; the v0.8.0 source registry contains ten checkpoints while the published v0.7.1 package remains at five. This is not a complete drop-in replacement for OpenCLIP.
+- A Model Registry, shared Backend interface, and per-model Capabilities; the published v0.8.0 distribution contains ten registered checkpoints. This is not a complete drop-in replacement for OpenCLIP.
 - EmbeddingGemma uses the official Transformers model/processor and Sentence Transformers numerical reference; dino.txt follows the pinned Meta Hub implementation and checkpoints; SigLIP 2 uses pinned Google checkpoints and Transformers processors.
 - Model API includes `forward()`, `get_logits()`, and factory option `output_dict=True`.
 - EmbeddingGemma `forward()` and `get_logits()` require explicit `logit_scale_mode="cosine"`; dino.txt and SigLIP 2 strict modes preserve their official scaled-logit paths and learned parameters.
@@ -36,8 +36,8 @@ are supported, up to but not including Python 3.15, except Python 3.14.1
 (`>=3.12,<3.15,!=3.14.1`).
 
 Model availability depends on the installed distribution version. The
-source-checkout instructions below install the current repository version,
-including models added in v0.8.0.
+published v0.8.0 distribution contains ten registered checkpoints. The
+source-checkout instructions below install the checked-out repository version.
 
 ```bash
 pip install --upgrade openvlclip
@@ -55,9 +55,18 @@ Install the optional video dependency for video-frame indexing and search:
 pip install --upgrade "openvlclip[video]"
 ```
 
-OpenVLCLIP v0.7.1 was formally published to [PyPI](https://pypi.org/project/openvlclip/0.7.1/) and as a [GitHub Release](https://github.com/kotadymo/openvlclip/releases/tag/v0.7.1) on 2026-10-23 using the unified Trusted Publishing workflow. This backward-compatible patch keeps the five v0.7.0 checkpoints and embedding behavior, adds opt-in Native Video Index content verification, and enforces Qwen3-VL-Embedding-2B's native-video frame limit. Model weights are downloaded separately and are not bundled.
+Install PE-Core's optional `open-clip-torch` dependency with the `[pecore]`
+extra:
 
-To install v0.7.1:
+```bash
+pip install --upgrade "openvlclip[pecore]"
+```
+
+### Historical v0.7.1 release and installation
+
+OpenVLCLIP v0.7.1 was formally published to [PyPI](https://pypi.org/project/openvlclip/0.7.1/) and as a [GitHub Release](https://github.com/kotadymo/openvlclip/releases/tag/v0.7.1) on 2026-10-23 using the unified Trusted Publishing workflow. That historical distribution kept the five v0.7.0 checkpoints and embedding behavior, added opt-in Native Video Index content verification, and enforced Qwen3-VL-Embedding-2B's native-video frame limit. Model weights are downloaded separately and are not bundled.
+
+To install the historical v0.7.1 distribution:
 
 ```bash
 pip install "openvlclip==0.7.1"
@@ -65,7 +74,9 @@ pip install "openvlclip[dinotxt]==0.7.1"
 pip install "openvlclip[qwen3vl]==0.7.1"
 ```
 
-**Qwen3-VL-Embedding-8B is not supported in v0.7.1.** Native Qwen video-file processing also requires a compatible video/FFmpeg runtime as described below. See the [v0.7.1 release notes](docs/release-notes-v0.7.1.md) for patch details.
+Qwen3-VL-Embedding-8B was not supported in v0.7.1 and remains unsupported.
+Native Qwen video-file processing also requires a compatible video/FFmpeg
+runtime as described below. See the [v0.7.1 release notes](docs/release-notes-v0.7.1.md) for patch details.
 OpenVLCLIP v0.6.1 was published on 2026-10-22 to
 [PyPI](https://pypi.org/project/openvlclip/0.6.1/) with a public
 [GitHub Release](https://github.com/kotadymo/openvlclip/releases/tag/v0.6.1).
@@ -186,18 +197,18 @@ sources and remaining license-scope uncertainty.
 
 ## SigLIP 2
 
-SigLIP 2 is included in the published v0.7.0 distribution; it is not included
-in the earlier v0.6.1 wheel.
+SigLIP 2 first appeared in the published v0.7.0 distribution. The v0.8.0
+release includes five pinned Google checkpoints:
 
-The registry provides two pinned Google SigLIP 2 checkpoints, each producing
-768-dimensional image and text embeddings:
+| Model ID | Checkpoint | Image processing | Embedding dimension |
+| --- | --- | --- | ---: |
+| `siglip2-base` | `google/siglip2-base-patch16-224` | FixRes, RGB 224x224 | 768 |
+| `siglip2-naflex-base` | `google/siglip2-base-patch16-naflex` | NaFlex, variable resolution with up to 256 patches | 768 |
+| `siglip2-base-384` | `google/siglip2-base-patch16-384` | FixRes, RGB 384x384 | 768 |
+| `siglip2-large-256` | `google/siglip2-large-patch16-256` | FixRes, RGB 256x256 | 1024 |
+| `siglip2-so400m-384` | `google/siglip2-so400m-patch14-384` | FixRes, RGB 384x384 | 1152 |
 
-| Model ID | Checkpoint | Image processing |
-| --- | --- | --- |
-| `siglip2-base` | `google/siglip2-base-patch16-224` | FixRes, RGB 224x224 |
-| `siglip2-naflex-base` | `google/siglip2-base-patch16-naflex` | NaFlex, variable resolution with up to 256 patches |
-
-Both models use a fixed 64-token tokenizer and do not support task prompts,
+All five models use a fixed 64-token tokenizer and do not support task prompts,
 selective loading, or MRL truncation. SigLIP 2's learned scale and bias are
 used by `get_logits()` in strict mode; `forward()` is supported only in cosine
 mode. Cosine mode is separate, and logits or similarities should not be
@@ -222,12 +233,13 @@ cosine_similarity = image_features @ text_features.T
 ```
 
 The same processor-aware input contract is retained by bounded file batching
-and image-index search. Neither SigLIP 2 variant supports patch embeddings or
+and image-index search. SigLIP 2 does not support patch embeddings or
 text similarity maps.
 
 ## Qwen3-VL-Embedding-2B
 
-Qwen3-VL-Embedding-2B in v0.7.0 uses the pinned Qwen processor and chat template:
+Qwen3-VL-Embedding-2B first appeared in v0.7.0 and remains in the v0.8.0
+registry, using the pinned Qwen processor and chat template:
 
 | Model ID | Native image/text embedding | MRL range |
 | --- | ---: | ---: |
@@ -548,13 +560,13 @@ re-embeds those entries to establish their hashes.
 
 ## OpenCLIP differences and compatibility
 
-`openvlclip` offers a **partial, OpenCLIP-inspired inference API**, not an implementation of OpenCLIP. The v0.8.0 source registry contains ten model names with model-specific capabilities and embedding spaces; the v0.7.1 distribution includes the five original checkpoints. Qwen3-VL-Embedding-8B is not registered or supported.
+`openvlclip` offers a **partial, OpenCLIP-inspired inference API**, not an implementation of OpenCLIP. The published v0.8.0 registry contains ten model names with model-specific capabilities and embedding spaces; the earlier v0.7.1 distribution contained five checkpoints. Qwen3-VL-Embedding-8B is not registered or supported.
 
 | Area | `openvlclip` behavior |
 | --- | --- |
 | Embeddings | EmbeddingGemma 2 produces 768 dimensions with MRL outputs of 512, 256, or 128. dino.txt produces 2048-dimensional global embeddings and 1024-dimensional patch features. SigLIP 2 variants produce 768, 1024, or 1152-dimensional global embeddings without MRL. PE-Core T/S produce 512-dimensional global embeddings. Qwen 2B produces 2048-dimensional global embeddings and permits MRL dimensions from 64 through native. Unsupported truncation is rejected. |
 | Images | Use the selected model's returned preprocessing transform and do not preprocess twice. EmbeddingGemma, dino.txt, PE-Core, and SigLIP 2 FixRes use model-specific float32 `[B, 3, H, W]` tensors. NaFlex uses a mapping with pixel values, attention mask, and spatial shapes. Qwen uses processor-aware PIL images. |
-| Text | `get_tokenizer()` returns model-specific token IDs for supported token-ID backends; `encode_texts()` accepts strings, and Qwen also accepts an instruction. Qwen does not support `get_tokenizer()`/token-ID `encode_text()`. EmbeddingGemma task prompts are not applied to dino.txt, SigLIP 2, or PE-Core. Token IDs are model-specific and not interchangeable. |
+| Text | `get_tokenizer()` returns model-specific token IDs for supported token-ID backends; `encode_texts()` accepts strings, and Qwen also accepts an instruction. PE-Core requires exactly 32 token IDs from `get_tokenizer()` and does not pad or truncate caller-supplied tokens. Qwen does not support `get_tokenizer()`/token-ID `encode_text()`. EmbeddingGemma task prompts are not applied to dino.txt, SigLIP 2, or PE-Core. Token IDs are model-specific and not interchangeable. |
 | Similarity | EmbeddingGemma and Qwen cosine modes return scale-1 similarities. dino.txt, SigLIP 2, and PE-Core strict modes preserve their official scaled logits and learned parameters; cosine mode is distinct. These values are not calibrated probabilities. |
 | Factory discovery | `list_models()`, `list_pretrained()`, and `create_model_from_pretrained()` resolve the registered backends and their checkpoints. |
 | Selective loading | Selective loading is supported by EmbeddingGemma 2. dino.txt, SigLIP 2, and PE-Core require their complete image/text models. |
@@ -724,10 +736,10 @@ This is an independently developed library, not an official extension of OpenCLI
 The names OpenCLIP and Gemma refer to their respective projects and technologies. No affiliation or endorsement is implied.
 
 
-## v0.8.0 source registry and installation
+## v0.8.0 released registry and installation
 
-The v0.8.0 source registry contains ten checkpoints: the five models from the
-v0.7.1 distribution plus three SigLIP 2 variants and two optional PE-Core
+The released v0.8.0 registry contains ten checkpoints: the five models from
+the v0.7.1 distribution plus three SigLIP 2 variants and two optional PE-Core
 models. Model availability is version-specific; consult the release notes
 for the package version you install.
 
@@ -750,7 +762,15 @@ timm OpenCLIP-converted weights and the optional `open-clip-torch` backend.
 Each checkpoint has a distinct EmbeddingSpace identity. Model weights are
 downloaded only when explicitly loaded and are not included in distributions.
 
-To install the v0.8.0 source and PE-Core's optional dependency:
+To install the published v0.8.0 package with or without the optional PE-Core
+dependency:
+
+```bash
+pip install "openvlclip==0.8.0"
+pip install "openvlclip[pecore]==0.8.0"
+```
+
+To install from a source checkout with PE-Core's optional dependency:
 
 ```bash
 git clone https://github.com/kotadymo/openvlclip.git
@@ -758,11 +778,16 @@ cd openvlclip
 pip install -e ".[pecore]"
 ```
 
-The `pecore` extra is not present in the published v0.7.1 wheel. The five
-v0.8.0 additions passed CPU FP32 reference parity. SigLIP 2 CUDA BF16 passed
-for all five checkpoints; CUDA FP32 passed for four, with `siglip2-large-256`
-unverified because of shared-GPU memory limits. PE-Core T/S CUDA parity was
-not run. See the [v0.8.0 validation record](docs/v0.8.0-validation.md),
+The `[pecore]` extra was added in v0.8.0 and was absent from the historical
+v0.7.1 wheel. The v0.8.0 validation record preserves the original CPU FP32
+checks; its SigLIP 2 parity measurements predate PR #58's official
+no-attention-mask correction. The post-correction CPU FP32 results for the
+three additional SigLIP 2 checkpoints are recorded in the
+[v0.8.1 validation record](docs/v0.8.1-validation.md). Historical SigLIP 2
+CUDA BF16 parity passed for all five checkpoints; CUDA FP32 passed for four,
+with `siglip2-large-256` unverified because of shared-GPU memory limits.
+Those CUDA results also predate PR #58. PE-Core T/S CUDA parity was not run.
+See the [v0.8.0 validation record](docs/v0.8.0-validation.md),
 [SigLIP 2 notes](docs/v0.8.0-siglip2-variants.md), and
 [PE-Core notes](docs/v0.8.0-pe-core.md). DINOv3 + dino.txt remains deferred
 and is not part of v0.8.0.
