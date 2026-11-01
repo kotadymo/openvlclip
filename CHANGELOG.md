@@ -1,9 +1,6 @@
 # Changelog
 
-## v0.8.1 — Unreleased
-
-This patch release is under preparation; no v0.8.1 package or GitHub Release
-has been published.
+## v0.8.1 — 2026-11-01
 
 ### Fixed
 
