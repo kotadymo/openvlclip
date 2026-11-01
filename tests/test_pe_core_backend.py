@@ -22,6 +22,7 @@ _CASES = (
     ("pe-core-t16-384", "timm/PE-Core-T-16-384", "7fe539ed578ac49a1c2b4f946e4b0747704c825a"),
     ("pe-core-s16-384", "timm/PE-Core-S-16-384", "3249a38eb1c432ec19231c6fe1774acb6a4e4efe"),
 )
+_MODEL_NAMES = tuple(case[0] for case in _CASES)
 
 
 class FakePE(nn.Module):
@@ -116,6 +117,62 @@ def test_model_factory_embeddings_logits_and_tokenizer(
     tokenize = get_tokenizer(name)
     assert tokenize("a cat").shape == (1, 32)
     tokenizer_loader.assert_called_once_with(f"local-dir:{tmp_path}")
+
+
+@pytest.mark.parametrize("name", _MODEL_NAMES)
+@pytest.mark.parametrize("sequence_length", (0, 1, 31, 33))
+def test_pe_core_rejects_non_32_token_inputs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+    sequence_length: int,
+) -> None:
+    _mock_loading(tmp_path, monkeypatch)
+    model, _, _ = create_model_and_transforms(name)
+    text = torch.ones((1, sequence_length), dtype=torch.long)
+    image = torch.ones((1, 3, 384, 384))
+    error_pattern = r"exactly 32 tokens.*get_tokenizer"
+
+    with pytest.raises(ValueError, match=error_pattern):
+        model.encode_text(text)
+    with pytest.raises(ValueError, match=error_pattern):
+        model.get_logits(image, text)
+
+
+@pytest.mark.parametrize("name", _MODEL_NAMES)
+@pytest.mark.parametrize("batch_size", (1, 2))
+def test_pe_core_accepts_non_empty_32_token_batches(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+    batch_size: int,
+) -> None:
+    _mock_loading(tmp_path, monkeypatch)
+    model, _, _ = create_model_and_transforms(name)
+    text = torch.ones((batch_size, 32), dtype=torch.long)
+
+    assert model.encode_text(text).shape == (batch_size, 512)
+    image = torch.ones((1, 3, 384, 384))
+    image_logits, text_logits = model.get_logits(image, text)
+    assert image_logits.shape == (1, batch_size)
+    assert text_logits.shape == (batch_size, 1)
+
+
+@pytest.mark.parametrize("name", _MODEL_NAMES)
+def test_pe_core_rejects_empty_text_batches(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+) -> None:
+    _mock_loading(tmp_path, monkeypatch)
+    model, _, _ = create_model_and_transforms(name)
+    text = torch.empty((0, 32), dtype=torch.long)
+    image = torch.ones((1, 3, 384, 384))
+
+    with pytest.raises(ValueError, match="at least one sequence"):
+        model.encode_text(text)
+    with pytest.raises(ValueError, match="at least one sequence"):
+        model.get_logits(image, text)
 
 
 def test_pe_core_model_spaces_are_distinct_and_list_is_side_effect_free() -> None:

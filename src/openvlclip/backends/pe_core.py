@@ -323,9 +323,15 @@ class PECoreBackend:
     ) -> torch.Tensor:
         self.validate_embedding_dimension(truncate_dim, name="truncate_dim")
         if not isinstance(text, torch.Tensor) or text.dtype != torch.long or text.ndim != 2:
-            raise TypeError("PE-Core text requires LongTensor[B,L].")
-        if text.shape[0] == 0 or not 1 <= text.shape[1] <= PE_CORE_CONTEXT_LENGTH:
-            raise ValueError("PE-Core text length must be between 1 and 32.")
+            raise TypeError("PE-Core text requires LongTensor[B,32].")
+        if text.shape[0] == 0:
+            raise ValueError("PE-Core text batch must contain at least one sequence.")
+        if text.shape[1] != PE_CORE_CONTEXT_LENGTH:
+            raise ValueError(
+                f"PE-Core requires exactly {PE_CORE_CONTEXT_LENGTH} tokens; use "
+                f"get_tokenizer({self.model_name!r}) to obtain the fixed-length "
+                "padded token IDs."
+            )
         param = next(model.backend.parameters())
         with torch.inference_mode():
             output = model.backend.encode_text(

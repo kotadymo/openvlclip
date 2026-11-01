@@ -1,10 +1,29 @@
 # Changelog
 
-## v0.8.0 — Unreleased (release preparation; not published)
+## v0.8.1 — Unreleased
 
-The source package version is being prepared as `0.8.0`; the latest published
-PyPI version remains `0.7.1`. This changelog entry does not indicate a PyPI or
-GitHub Release.
+This patch release is under preparation; no v0.8.1 package or GitHub Release
+has been published.
+
+### Fixed
+
+- Require PE-Core text token batches to have a non-empty batch and exactly 32
+  tokens; invalid sequence lengths now point callers to `get_tokenizer()`.
+- Correct README and changelog release status and describe the ten-checkpoint
+  v0.8.0 distribution.
+
+### Validation
+
+- Pass the post-PR #58 official-path CPU FP32 parity check for all three
+  v0.8.0-added SigLIP 2 checkpoints; each separate pytest process selected
+  and passed exactly one test. See
+  [the v0.8.1 validation record](docs/v0.8.1-validation.md).
+
+## v0.8.0 — 2026-10-23
+
+Released on [PyPI](https://pypi.org/project/openvlclip/0.8.0/) and as a
+[GitHub Release](https://github.com/kotadymo/openvlclip/releases/tag/v0.8.0)
+on 2026-10-23 UTC (2026-10-24 JST).
 
 ### Added
 
@@ -15,6 +34,11 @@ GitHub Release.
   `open-clip-torch>=3.3.0,<3.4.0`; model weights remain external downloads.
 - Use partition-based exact top-k selection for image, frame-video, and
   native-video retrieval without changing index formats or tie ordering.
+
+### Fixed
+
+- Align SigLIP 2 text inference with the official Transformers path by not
+  passing a synthesized PAD attention mask (PR #58).
 
 ### Validation
 
